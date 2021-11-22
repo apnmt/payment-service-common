@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,19 +25,19 @@ public class Subscription implements Serializable {
 
     @NotNull
     @Column(name = "expiration_date", nullable = false)
-    private Instant expirationDate;
+    private LocalDateTime expirationDate;
 
     @OneToMany(mappedBy = "subscription")
-    @JsonIgnoreProperties(value = { "price", "subscription" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"price", "subscription"}, allowSetters = true)
     private Set<SubscriptionItem> subscriptionItems = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "Subscriptions" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"Subscriptions"}, allowSetters = true)
     private Customer customer;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Long id) {
@@ -49,16 +49,16 @@ public class Subscription implements Serializable {
         return this;
     }
 
-    public Instant getExpirationDate() {
+    public LocalDateTime getExpirationDate() {
         return this.expirationDate;
     }
 
-    public Subscription expirationDate(Instant expirationDate) {
+    public Subscription expirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
         return this;
     }
 
-    public void setExpirationDate(Instant expirationDate) {
+    public void setExpirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
     }
 
@@ -116,7 +116,7 @@ public class Subscription implements Serializable {
         if (!(o instanceof Subscription)) {
             return false;
         }
-        return id != null && id.equals(((Subscription) o).id);
+        return this.id != null && this.id.equals(((Subscription) o).id);
     }
 
     @Override
@@ -129,8 +129,8 @@ public class Subscription implements Serializable {
     @Override
     public String toString() {
         return "Subscription{" +
-            "id=" + getId() +
-            ", expirationDate='" + getExpirationDate() + "'" +
-            "}";
+                "id=" + getId() +
+                ", expirationDate='" + getExpirationDate() + "'" +
+                "}";
     }
 }

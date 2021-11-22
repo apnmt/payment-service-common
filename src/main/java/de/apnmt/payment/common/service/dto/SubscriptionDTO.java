@@ -4,7 +4,7 @@ import de.apnmt.payment.domain.Subscription;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -12,31 +12,32 @@ import java.util.Objects;
  */
 public class SubscriptionDTO implements Serializable {
 
+    private static final long serialVersionUID = -1031736763575543492L;
     private Long id;
 
     @NotNull
-    private Instant expirationDate;
+    private LocalDateTime expirationDate;
 
     private CustomerDTO customer;
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public Instant getExpirationDate() {
-        return expirationDate;
+    public LocalDateTime getExpirationDate() {
+        return this.expirationDate;
     }
 
-    public void setExpirationDate(Instant expirationDate) {
+    public void setExpirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
     }
 
     public CustomerDTO getCustomer() {
-        return customer;
+        return this.customer;
     }
 
     public void setCustomer(CustomerDTO customer) {
@@ -68,9 +69,9 @@ public class SubscriptionDTO implements Serializable {
     @Override
     public String toString() {
         return "SubscriptionDTO{" +
-            "id=" + getId() +
-            ", expirationDate='" + getExpirationDate() + "'" +
-            ", customer=" + getCustomer() +
-            "}";
+                "id=" + getId() +
+                ", expirationDate='" + getExpirationDate() + "'" +
+                ", customer=" + getCustomer() +
+                "}";
     }
 }
