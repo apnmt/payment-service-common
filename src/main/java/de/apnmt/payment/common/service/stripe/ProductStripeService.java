@@ -4,7 +4,6 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Product;
 import de.apnmt.payment.common.service.dto.ProductDTO;
 import de.apnmt.payment.common.service.stripe.mapper.ProductMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -12,8 +11,11 @@ import java.util.Map;
 @Service
 public class ProductStripeService extends StripeService {
 
-    @Autowired
-    private ProductMapper productMapper;
+    private final ProductMapper productMapper;
+
+    public ProductStripeService(ProductMapper productMapper) {
+        this.productMapper = productMapper;
+    }
 
     public ProductDTO save(ProductDTO productDTO) throws StripeException {
         Map<String, Object> params = this.productMapper.toEntity(productDTO);

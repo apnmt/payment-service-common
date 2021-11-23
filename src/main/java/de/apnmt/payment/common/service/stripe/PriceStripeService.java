@@ -4,7 +4,6 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Price;
 import de.apnmt.payment.common.service.dto.PriceDTO;
 import de.apnmt.payment.common.service.stripe.mapper.PriceMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -13,8 +12,11 @@ import java.util.Map;
 @Service
 public class PriceStripeService extends StripeService {
 
-    @Autowired
-    private PriceMapper priceMapper;
+    private final PriceMapper priceMapper;
+
+    public PriceStripeService(PriceMapper priceMapper) {
+        this.priceMapper = priceMapper;
+    }
 
     public PriceDTO save(PriceDTO priceDTO) throws StripeException {
         Map<String, Object> params = this.priceMapper.toEntity(priceDTO);
