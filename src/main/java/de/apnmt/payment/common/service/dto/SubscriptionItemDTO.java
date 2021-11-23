@@ -11,7 +11,8 @@ import java.util.Objects;
  */
 public class SubscriptionItemDTO implements Serializable {
 
-    private Long id;
+    private static final long serialVersionUID = 7221412163788220968L;
+    private String id;
 
     @NotNull
     private Integer quantity;
@@ -20,16 +21,16 @@ public class SubscriptionItemDTO implements Serializable {
 
     private SubscriptionDTO subscription;
 
-    public Long getId() {
-        return id;
+    public String getId() {
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     public Integer getQuantity() {
-        return quantity;
+        return this.quantity;
     }
 
     public void setQuantity(Integer quantity) {
@@ -37,7 +38,7 @@ public class SubscriptionItemDTO implements Serializable {
     }
 
     public PriceDTO getPrice() {
-        return price;
+        return this.price;
     }
 
     public void setPrice(PriceDTO price) {
@@ -45,7 +46,7 @@ public class SubscriptionItemDTO implements Serializable {
     }
 
     public SubscriptionDTO geSubscription() {
-        return subscription;
+        return this.subscription;
     }
 
     public void seSubscription(SubscriptionDTO subscription) {
@@ -77,10 +78,10 @@ public class SubscriptionItemDTO implements Serializable {
     @Override
     public String toString() {
         return "SubscriptionItemDTO{" +
-            "id=" + getId() +
-            ", quantity=" + getQuantity() +
-            ", price=" + getPrice() +
-            ", subscription=" + geSubscription() +
-            "}";
+                "id=" + getId() +
+                ", quantity=" + getQuantity() +
+                ", price=" + getPrice() +
+                ", subscription=" + geSubscription() +
+                "}";
     }
 }

@@ -1,6 +1,8 @@
 package de.apnmt.payment.common.service.dto;
 
 import de.apnmt.payment.common.domain.Price;
+import de.apnmt.payment.common.domain.enumeration.Currency;
+import de.apnmt.payment.common.domain.enumeration.Interval;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -11,13 +13,14 @@ import java.util.Objects;
  */
 public class PriceDTO implements Serializable {
 
-    private Long id;
+    private static final long serialVersionUID = -1691310934193080984L;
+    private String id;
 
     @NotNull
     private String nickname;
 
     @NotNull
-    private String currency;
+    private Currency currency;
 
     @NotNull
     private String postalCode;
@@ -26,36 +29,36 @@ public class PriceDTO implements Serializable {
     private Long amount;
 
     @NotNull
-    private String interval;
+    private Interval interval;
 
     private ProductDTO product;
 
-    public Long getId() {
-        return id;
+    public String getId() {
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     public String getNickname() {
-        return nickname;
+        return this.nickname;
     }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
 
-    public String getCurrency() {
-        return currency;
+    public Currency getCurrency() {
+        return this.currency;
     }
 
-    public void setCurrency(String currency) {
+    public void setCurrency(Currency currency) {
         this.currency = currency;
     }
 
     public String getPostalCode() {
-        return postalCode;
+        return this.postalCode;
     }
 
     public void setPostalCode(String postalCode) {
@@ -63,23 +66,23 @@ public class PriceDTO implements Serializable {
     }
 
     public Long getAmount() {
-        return amount;
+        return this.amount;
     }
 
     public void setAmount(Long amount) {
         this.amount = amount;
     }
 
-    public String getInterval() {
-        return interval;
+    public Interval getInterval() {
+        return this.interval;
     }
 
-    public void setInterval(String interval) {
+    public void setInterval(Interval interval) {
         this.interval = interval;
     }
 
     public ProductDTO getProduct() {
-        return product;
+        return this.product;
     }
 
     public void setProduct(ProductDTO product) {
@@ -111,13 +114,13 @@ public class PriceDTO implements Serializable {
     @Override
     public String toString() {
         return "PriceDTO{" +
-            "id=" + getId() +
-            ", nickname='" + getNickname() + "'" +
-            ", currency='" + getCurrency() + "'" +
-            ", postalCode='" + getPostalCode() + "'" +
-            ", amount=" + getAmount() +
-            ", interval='" + getInterval() + "'" +
-            ", product=" + getProduct() +
-            "}";
+                "id=" + getId() +
+                ", nickname='" + getNickname() + "'" +
+                ", currency='" + getCurrency() + "'" +
+                ", postalCode='" + getPostalCode() + "'" +
+                ", amount=" + getAmount() +
+                ", interval='" + getInterval() + "'" +
+                ", product=" + getProduct() +
+                "}";
     }
 }

@@ -11,7 +11,8 @@ import java.util.Objects;
  */
 public class ProductDTO implements Serializable {
 
-    private Long id;
+    private static final long serialVersionUID = -6496958811922565150L;
+    private String id;
 
     @NotNull
     private String name;
@@ -19,16 +20,16 @@ public class ProductDTO implements Serializable {
     @NotNull
     private String description;
 
-    public Long getId() {
-        return id;
+    public String getId() {
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -36,7 +37,7 @@ public class ProductDTO implements Serializable {
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public void setDescription(String description) {
@@ -68,9 +69,9 @@ public class ProductDTO implements Serializable {
     @Override
     public String toString() {
         return "ProductDTO{" +
-            "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", description='" + getDescription() + "'" +
-            "}";
+                "id=" + getId() +
+                ", name='" + getName() + "'" +
+                ", description='" + getDescription() + "'" +
+                "}";
     }
 }

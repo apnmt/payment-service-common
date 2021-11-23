@@ -1,10 +1,11 @@
 package de.apnmt.payment.common.service.dto;
 
-import de.apnmt.payment.domain.Subscription;
+import de.apnmt.payment.common.domain.Subscription;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -13,18 +14,21 @@ import java.util.Objects;
 public class SubscriptionDTO implements Serializable {
 
     private static final long serialVersionUID = -1031736763575543492L;
-    private Long id;
+
+    private String id;
 
     @NotNull
     private LocalDateTime expirationDate;
 
     private CustomerDTO customer;
 
-    public Long getId() {
+    private List<SubscriptionItemDTO> subscriptionItems;
+
+    public String getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -42,6 +46,14 @@ public class SubscriptionDTO implements Serializable {
 
     public void setCustomer(CustomerDTO customer) {
         this.customer = customer;
+    }
+
+    public List<SubscriptionItemDTO> getSubscriptionItems() {
+        return this.subscriptionItems;
+    }
+
+    public void setSubscriptionItems(List<SubscriptionItemDTO> subscriptionItems) {
+        this.subscriptionItems = subscriptionItems;
     }
 
     @Override
