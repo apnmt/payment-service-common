@@ -1,6 +1,8 @@
 package de.apnmt.payment.common.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import de.apnmt.payment.common.domain.enumeration.Currency;
+import de.apnmt.payment.common.domain.enumeration.Interval;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -18,17 +20,16 @@ public class Price implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
-    private Long id;
+    private String id;
 
     @NotNull
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency", nullable = false)
-    private String currency;
+    private Currency currency;
 
     @NotNull
     @Column(name = "postal_code", nullable = false)
@@ -39,27 +40,28 @@ public class Price implements Serializable {
     private Long amount;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "interval", nullable = false)
-    private String interval;
+    private Interval interval;
 
     @OneToMany(mappedBy = "price")
-    @JsonIgnoreProperties(value = { "price", "subscription" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"price", "subscription"}, allowSetters = true)
     private Set<SubscriptionItem> subscriptionItems = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "prices" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"prices"}, allowSetters = true)
     private Product product;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
-    public Long getId() {
-        return id;
+    public String getId() {
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Price id(Long id) {
+    public Price id(String id) {
         this.id = id;
         return this;
     }
@@ -77,16 +79,16 @@ public class Price implements Serializable {
         this.nickname = nickname;
     }
 
-    public String getCurrency() {
+    public Currency getCurrency() {
         return this.currency;
     }
 
-    public Price currency(String currency) {
+    public Price currency(Currency currency) {
         this.currency = currency;
         return this;
     }
 
-    public void setCurrency(String currency) {
+    public void setCurrency(Currency currency) {
         this.currency = currency;
     }
 
@@ -116,16 +118,16 @@ public class Price implements Serializable {
         this.amount = amount;
     }
 
-    public String getInterval() {
+    public Interval getInterval() {
         return this.interval;
     }
 
-    public Price interval(String interval) {
+    public Price interval(Interval interval) {
         this.interval = interval;
         return this;
     }
 
-    public void setInterval(String interval) {
+    public void setInterval(Interval interval) {
         this.interval = interval;
     }
 
@@ -183,7 +185,7 @@ public class Price implements Serializable {
         if (!(o instanceof Price)) {
             return false;
         }
-        return id != null && id.equals(((Price) o).id);
+        return this.id != null && this.id.equals(((Price) o).id);
     }
 
     @Override
@@ -196,12 +198,12 @@ public class Price implements Serializable {
     @Override
     public String toString() {
         return "Price{" +
-            "id=" + getId() +
-            ", nickname='" + getNickname() + "'" +
-            ", currency='" + getCurrency() + "'" +
-            ", postalCode='" + getPostalCode() + "'" +
-            ", amount=" + getAmount() +
-            ", interval='" + getInterval() + "'" +
-            "}";
+                "id=" + getId() +
+                ", nickname='" + getNickname() + "'" +
+                ", currency='" + getCurrency() + "'" +
+                ", postalCode='" + getPostalCode() + "'" +
+                ", amount=" + getAmount() +
+                ", interval='" + getInterval() + "'" +
+                "}";
     }
 }

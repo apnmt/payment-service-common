@@ -18,28 +18,26 @@ public class Customer implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
-    private Long id;
+    private String id;
 
     @NotNull
     @Column(name = "organization_id", nullable = false)
     private Long organizationId;
 
     @OneToMany(mappedBy = "customer")
-    @JsonIgnoreProperties(value = { "subscriptionItems", "customer" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"subscriptionItems", "customer"}, allowSetters = true)
     private Set<Subscription> subscriptions = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
-    public Long getId() {
-        return id;
+    public String getId() {
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Customer id(Long id) {
+    public Customer id(String id) {
         this.id = id;
         return this;
     }
@@ -98,7 +96,7 @@ public class Customer implements Serializable {
         if (!(o instanceof Customer)) {
             return false;
         }
-        return id != null && id.equals(((Customer) o).id);
+        return this.id != null && this.id.equals(((Customer) o).id);
     }
 
     @Override
@@ -111,8 +109,8 @@ public class Customer implements Serializable {
     @Override
     public String toString() {
         return "Customer{" +
-            "id=" + getId() +
-            ", organizationId=" + getOrganizationId() +
-            "}";
+                "id=" + getId() +
+                ", organizationId=" + getOrganizationId() +
+                "}";
     }
 }

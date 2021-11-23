@@ -18,9 +18,7 @@ public class Product implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
-    private Long id;
+    private String id;
 
     @NotNull
     @Column(name = "name", nullable = false)
@@ -31,19 +29,19 @@ public class Product implements Serializable {
     private String description;
 
     @OneToMany(mappedBy = "product")
-    @JsonIgnoreProperties(value = { "subscriptionItems", "product" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"subscriptionItems", "product"}, allowSetters = true)
     private Set<Price> prices = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
-    public Long getId() {
-        return id;
+    public String getId() {
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Product id(Long id) {
+    public Product id(String id) {
         this.id = id;
         return this;
     }
@@ -115,7 +113,7 @@ public class Product implements Serializable {
         if (!(o instanceof Product)) {
             return false;
         }
-        return id != null && id.equals(((Product) o).id);
+        return this.id != null && this.id.equals(((Product) o).id);
     }
 
     @Override
@@ -128,9 +126,9 @@ public class Product implements Serializable {
     @Override
     public String toString() {
         return "Product{" +
-            "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", description='" + getDescription() + "'" +
-            "}";
+                "id=" + getId() +
+                ", name='" + getName() + "'" +
+                ", description='" + getDescription() + "'" +
+                "}";
     }
 }

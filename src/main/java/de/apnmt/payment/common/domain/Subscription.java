@@ -19,9 +19,7 @@ public class Subscription implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
-    private Long id;
+    private String id;
 
     @NotNull
     @Column(name = "expiration_date", nullable = false)
@@ -36,15 +34,15 @@ public class Subscription implements Serializable {
     private Customer customer;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
-    public Long getId() {
+    public String getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Subscription id(Long id) {
+    public Subscription id(String id) {
         this.id = id;
         return this;
     }
@@ -62,12 +60,12 @@ public class Subscription implements Serializable {
         this.expirationDate = expirationDate;
     }
 
-    public Set<SubscriptionItem> geSubscriptionItems() {
+    public Set<SubscriptionItem> getSubscriptionItems() {
         return this.subscriptionItems;
     }
 
     public Subscription subscriptionItems(Set<SubscriptionItem> subscriptionItems) {
-        this.seSubscriptionItems(subscriptionItems);
+        this.setSubscriptionItems(subscriptionItems);
         return this;
     }
 
@@ -83,7 +81,7 @@ public class Subscription implements Serializable {
         return this;
     }
 
-    public void seSubscriptionItems(Set<SubscriptionItem> subscriptionItems) {
+    public void setSubscriptionItems(Set<SubscriptionItem> subscriptionItems) {
         if (this.subscriptionItems != null) {
             this.subscriptionItems.forEach(i -> i.seSubscription(null));
         }

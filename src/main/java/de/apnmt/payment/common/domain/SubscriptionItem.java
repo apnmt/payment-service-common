@@ -16,32 +16,30 @@ public class SubscriptionItem implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
-    private Long id;
+    private String id;
 
     @NotNull
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "subscriptionItems", "product" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"subscriptionItems", "product"}, allowSetters = true)
     private Price price;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "subscriptionItems", "customer" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"subscriptionItems", "customer"}, allowSetters = true)
     private Subscription subscription;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
-    public Long getId() {
-        return id;
+    public String getId() {
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public SubscriptionItem id(Long id) {
+    public SubscriptionItem id(String id) {
         this.id = id;
         return this;
     }
@@ -95,7 +93,7 @@ public class SubscriptionItem implements Serializable {
         if (!(o instanceof SubscriptionItem)) {
             return false;
         }
-        return id != null && id.equals(((SubscriptionItem) o).id);
+        return this.id != null && this.id.equals(((SubscriptionItem) o).id);
     }
 
     @Override
@@ -108,8 +106,8 @@ public class SubscriptionItem implements Serializable {
     @Override
     public String toString() {
         return "SubscriptionItem{" +
-            "id=" + getId() +
-            ", quantity=" + getQuantity() +
-            "}";
+                "id=" + getId() +
+                ", quantity=" + getQuantity() +
+                "}";
     }
 }
