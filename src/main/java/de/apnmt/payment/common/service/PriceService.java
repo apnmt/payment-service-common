@@ -1,102 +1,96 @@
 package de.apnmt.payment.common.service;
 
+import com.stripe.exception.StripeException;
 import de.apnmt.payment.common.domain.Price;
+import de.apnmt.payment.common.domain.Product;
 import de.apnmt.payment.common.repository.PriceRepository;
+import de.apnmt.payment.common.repository.ProductRepository;
 import de.apnmt.payment.common.service.dto.PriceDTO;
+import de.apnmt.payment.common.service.errors.PriceNotFoundException;
+import de.apnmt.payment.common.service.errors.ProductNotFoundException;
 import de.apnmt.payment.common.service.mapper.PriceMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.apnmt.payment.common.service.stripe.PriceStripeService;
+import de.apnmt.payment.common.web.rest.errors.BadRequestAlertException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-/**
- * Service Implementation for managing {@link Price}.
- */
 @Service
-@Transactional
 public class PriceService {
 
-    private final Logger log = LoggerFactory.getLogger(PriceService.class);
+    private PriceRepository priceRepository;
+    private PriceStripeService priceStripeService;
+    private PriceMapper priceMapper;
+    private ProductRepository productRepository;
 
-    private final PriceRepository priceRepository;
-
-    private final PriceMapper priceMapper;
-
-    public PriceService(PriceRepository priceRepository, PriceMapper priceMapper) {
+    public PriceService(PriceRepository priceRepository, PriceStripeService priceStripeService, PriceMapper priceMapper, ProductRepository productRepository) {
+        this.priceStripeService = priceStripeService;
         this.priceRepository = priceRepository;
         this.priceMapper = priceMapper;
+        this.productRepository = productRepository;
     }
 
-    /**
-     * Save a price.
-     *
-     * @param priceDTO the entity to save.
-     * @return the persisted entity.
-     */
+
     public PriceDTO save(PriceDTO priceDTO) {
-        log.debug("Request to save Price : {}", priceDTO);
-        Price price = priceMapper.toEntity(priceDTO);
-        price = priceRepository.save(price);
-        return priceMapper.toDto(price);
+        try {
+            Optional<Product> optional = this.productRepository.findById(priceDTO.getProduct().getId());
+            if (!optional.isPresent()) {
+                throw new ProductNotFoundException();
+            }
+            PriceDTO stripeResult = this.priceStripeService.save(priceDTO);
+            Price price = this.priceMapper.toEntity(priceDTO);
+            price.setId(stripeResult.getId());
+            Product product = optional.get();
+            product.addPrice(price);
+            price = this.priceRepository.save(price);
+            this.productRepository.save(product);
+            PriceDTO result = this.priceMapper.toDto(price);
+            return result;
+        } catch (StripeException ex) {
+            throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
+        }
     }
 
-    /**
-     * Partially update a price.
-     *
-     * @param priceDTO the entity to update partially.
-     * @return the persisted entity.
-     */
-    public Optional<PriceDTO> partialUpdate(PriceDTO priceDTO) {
-        log.debug("Request to partially update Price : {}", priceDTO);
-
-        return priceRepository
-            .findById(priceDTO.getId())
-            .map(
-                existingPrice -> {
-                    priceMapper.partialUpdate(existingPrice, priceDTO);
-
-                    return existingPrice;
-                }
-            )
-            .map(priceRepository::save)
-            .map(priceMapper::toDto);
+    public PriceDTO update(PriceDTO priceDTO) {
+        try {
+            this.priceStripeService.update(priceDTO);
+            Price price = this.priceMapper.toEntity(priceDTO);
+            price = this.priceRepository.save(price);
+            PriceDTO result = this.priceMapper.toDto(price);
+            return result;
+        } catch (StripeException ex) {
+            throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
+        }
     }
 
-    /**
-     * Get all the prices.
-     *
-     * @return the list of entities.
-     */
-    @Transactional(readOnly = true)
-    public List<PriceDTO> findAll() {
-        log.debug("Request to get all Prices");
-        return priceRepository.findAll().stream().map(priceMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
+    public PriceDTO findOne(String id) {
+        Optional<Price> price = this.priceRepository.findById(id);
+        if (price.isEmpty()) {
+            throw new PriceNotFoundException();
+        }
+        PriceDTO priceDTO = this.priceMapper.toDto(price.get());
+        return priceDTO;
     }
 
-    /**
-     * Get one price by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
-    @Transactional(readOnly = true)
-    public Optional<PriceDTO> findOne(Long id) {
-        log.debug("Request to get Price : {}", id);
-        return priceRepository.findById(id).map(priceMapper::toDto);
+    public Price validatePrice(Price price) {
+        Optional<Price> maybe = this.priceRepository.findById(price.getId());
+        if (maybe.isEmpty()) {
+            throw new PriceNotFoundException();
+        } else if (maybe.get().getProduct() == null) {
+            throw new ProductNotFoundException();
+        }
+        return maybe.get();
     }
 
-    /**
-     * Delete the price by id.
-     *
-     * @param id the id of the entity.
-     */
-    public void delete(Long id) {
-        log.debug("Request to delete Price : {}", id);
-        priceRepository.deleteById(id);
+    public List<PriceDTO> findAllByProduct(String productId) {
+        Optional<Product> product = this.productRepository.findById(productId);
+        if (!product.isPresent()) {
+            throw new ProductNotFoundException();
+        }
+        List<Price> prices = this.priceRepository.findAllByProduct(product.get());
+        List<PriceDTO> priceDTOS = this.priceMapper.toDto(prices);
+        return priceDTOS;
     }
+
 }

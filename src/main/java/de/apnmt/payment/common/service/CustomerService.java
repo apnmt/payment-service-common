@@ -1,102 +1,52 @@
 package de.apnmt.payment.common.service;
 
+import com.stripe.exception.StripeException;
 import de.apnmt.payment.common.domain.Customer;
 import de.apnmt.payment.common.repository.CustomerRepository;
 import de.apnmt.payment.common.service.dto.CustomerDTO;
-import de.apnmt.payment.common.service.mapper.CustomerMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.apnmt.payment.common.service.stripe.CustomerStripeService;
+import de.apnmt.payment.common.service.stripe.mapper.PaymentMethodMapper;
+import de.apnmt.payment.common.web.rest.errors.BadRequestAlertException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-/**
- * Service Implementation for managing {@link Customer}.
- */
 @Service
-@Transactional
 public class CustomerService {
 
-    private final Logger log = LoggerFactory.getLogger(CustomerService.class);
+    private CustomerRepository customerRepository;
+    private CustomerStripeService customerStripeService;
+    private PaymentMethodMapper paymentMethodMapper;
 
-    private final CustomerRepository customerRepository;
-
-    private final CustomerMapper customerMapper;
-
-    public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper) {
+    public CustomerService(CustomerRepository customerRepository, CustomerStripeService customerStripeService, PaymentMethodMapper paymentMethodMapper) {
         this.customerRepository = customerRepository;
-        this.customerMapper = customerMapper;
+        this.customerStripeService = customerStripeService;
+        this.paymentMethodMapper = paymentMethodMapper;
     }
 
-    /**
-     * Save a customer.
-     *
-     * @param customerDTO the entity to save.
-     * @return the persisted entity.
-     */
-    public CustomerDTO save(CustomerDTO customerDTO) {
-        log.debug("Request to save Customer : {}", customerDTO);
-        Customer customer = customerMapper.toEntity(customerDTO);
-        customer = customerRepository.save(customer);
-        return customerMapper.toDto(customer);
+    public Customer createCustomer(CustomerDTO customerDTO) {
+        Optional<Customer> maybe = this.customerRepository.findById(customerDTO.getId());
+        try {
+            if (maybe.isEmpty()) {
+                com.stripe.model.Customer stripeResult = this.customerStripeService.createCustomer(customerDTO.getEmail());
+                Customer customer = new Customer();
+                customer.setId(stripeResult.getId());
+                customer.setOrganizationId(customerDTO.getOrganizationId());
+                this.customerRepository.save(customer);
+                return customer;
+            }
+        } catch (StripeException ex) {
+            throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
+        }
+        return maybe.get();
     }
 
-    /**
-     * Partially update a customer.
-     *
-     * @param customerDTO the entity to update partially.
-     * @return the persisted entity.
-     */
-    public Optional<CustomerDTO> partialUpdate(CustomerDTO customerDTO) {
-        log.debug("Request to partially update Customer : {}", customerDTO);
-
-        return customerRepository
-            .findById(customerDTO.getId())
-            .map(
-                existingCustomer -> {
-                    customerMapper.partialUpdate(existingCustomer, customerDTO);
-
-                    return existingCustomer;
-                }
-            )
-            .map(customerRepository::save)
-            .map(customerMapper::toDto);
+    public void createPaymentMethod(String paymentMethod, String customerId) {
+        try {
+            this.customerStripeService.createPaymentMethod(paymentMethod, customerId);
+        } catch (StripeException e) {
+            throw new BadRequestAlertException(e.getMessage(), "Stripe", e.getCode());
+        }
     }
 
-    /**
-     * Get all the customers.
-     *
-     * @return the list of entities.
-     */
-    @Transactional(readOnly = true)
-    public List<CustomerDTO> findAll() {
-        log.debug("Request to get all Customers");
-        return customerRepository.findAll().stream().map(customerMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
-    }
-
-    /**
-     * Get one customer by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
-    @Transactional(readOnly = true)
-    public Optional<CustomerDTO> findOne(Long id) {
-        log.debug("Request to get Customer : {}", id);
-        return customerRepository.findById(id).map(customerMapper::toDto);
-    }
-
-    /**
-     * Delete the customer by id.
-     *
-     * @param id the id of the entity.
-     */
-    public void delete(Long id) {
-        log.debug("Request to delete Customer : {}", id);
-        customerRepository.deleteById(id);
-    }
 }
