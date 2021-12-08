@@ -1,6 +1,13 @@
 package de.apnmt.payment.common.service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
+
 import com.stripe.exception.StripeException;
+import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.domain.Customer;
 import de.apnmt.payment.common.domain.Price;
 import de.apnmt.payment.common.domain.Subscription;
@@ -8,32 +15,30 @@ import de.apnmt.payment.common.domain.SubscriptionItem;
 import de.apnmt.payment.common.repository.CustomerRepository;
 import de.apnmt.payment.common.repository.PriceRepository;
 import de.apnmt.payment.common.repository.SubscriptionRepository;
+import de.apnmt.payment.common.service.dto.CustomerDTO;
 import de.apnmt.payment.common.service.dto.SubscriptionDTO;
 import de.apnmt.payment.common.service.errors.CustomerNotFoundException;
 import de.apnmt.payment.common.service.errors.SubscriptionNotFoundException;
+import de.apnmt.payment.common.service.mapper.CustomerMapper;
 import de.apnmt.payment.common.service.mapper.SubscriptionMapper;
 import de.apnmt.payment.common.service.stripe.SubscriptionStripeService;
-import de.apnmt.payment.common.web.rest.errors.BadRequestAlertException;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
 
 @Service
 public class SubscriptionService {
 
-    private SubscriptionRepository subscriptionRepository;
-    private PriceRepository priceRepository;
-    private SubscriptionMapper subscriptionMapper;
-    private CustomerService customerService;
-    private PriceService priceService;
-    private SubscriptionStripeService subscriptionStripeService;
-    private CustomerRepository customerRepository;
+    private final SubscriptionRepository subscriptionRepository;
+    private final PriceRepository priceRepository;
+    private final SubscriptionMapper subscriptionMapper;
+    private final CustomerService customerService;
+    private final PriceService priceService;
+    private final SubscriptionStripeService subscriptionStripeService;
+    private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
 
-    public SubscriptionService(SubscriptionRepository subscriptionRepository, PriceRepository priceRepository, SubscriptionMapper subscriptionMapper, CustomerService customerService, PriceService priceService, SubscriptionStripeService subscriptionStripeService, CustomerRepository customerRepository) {
+    public SubscriptionService(SubscriptionRepository subscriptionRepository, PriceRepository priceRepository, SubscriptionMapper subscriptionMapper,
+                               CustomerService customerService, PriceService priceService, SubscriptionStripeService subscriptionStripeService,
+                               CustomerRepository customerRepository, CustomerMapper customerMapper) {
         this.subscriptionRepository = subscriptionRepository;
         this.priceRepository = priceRepository;
         this.subscriptionMapper = subscriptionMapper;
@@ -41,16 +46,18 @@ public class SubscriptionService {
         this.priceService = priceService;
         this.subscriptionStripeService = subscriptionStripeService;
         this.customerRepository = customerRepository;
+        this.customerMapper = customerMapper;
     }
 
-    public SubscriptionDTO checkout(SubscriptionDTO subscriptionDTO, String paymentMethod, String code) {
+    public SubscriptionDTO checkout(SubscriptionDTO subscriptionDTO, String paymentMethod) {
         try {
             Subscription subscription = this.subscriptionMapper.toEntity(subscriptionDTO);
-            validateSubscription(subscription);
-            Customer customer = this.customerService.createCustomer(subscriptionDTO.getCustomer());
+            this.validateSubscription(subscription);
+            CustomerDTO customerDTO = this.customerService.createCustomer(subscriptionDTO.getCustomer());
+            Customer customer = this.customerMapper.toEntity(customerDTO);
             this.customerService.createPaymentMethod(paymentMethod, customer.getId());
             com.stripe.model.Subscription stripeResult = this.subscriptionStripeService.createSubscription(subscription, customer.getId());
-            subscriptionDTO = handleSubscription(stripeResult, customer);
+            subscriptionDTO = this.handleSubscription(stripeResult, customer);
         } catch (StripeException ex) {
             throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
         }
@@ -68,7 +75,7 @@ public class SubscriptionService {
     private SubscriptionDTO handleSubscription(com.stripe.model.Subscription subscription, Customer customer) {
         SubscriptionDTO subscriptionDTO = new SubscriptionDTO();
         if (subscription.getStatus().equals("trialing") || subscription.getStatus().equals("active")) {
-            subscriptionDTO = saveSubscription(subscription, customer);
+            subscriptionDTO = this.saveSubscription(subscription, customer);
             // TODO send organization activation event
         }
         return subscriptionDTO;
@@ -97,8 +104,7 @@ public class SubscriptionService {
             LocalDateTime expirationDate = LocalDateTime.now().plusHours(1);
             s.setExpirationDate(expirationDate);
         } else if (subscription.getStatus().equals("trialing")) {
-            LocalDateTime expirationDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(subscription.getCurrentPeriodEnd()),
-                    TimeZone.getDefault().toZoneId());
+            LocalDateTime expirationDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(subscription.getCurrentPeriodEnd()), TimeZone.getDefault().toZoneId());
             s.setExpirationDate(expirationDate);
         }
         s = this.subscriptionRepository.save(s);
@@ -107,17 +113,16 @@ public class SubscriptionService {
 
     public SubscriptionDTO findOne(String id) {
         Optional<Subscription> subscription = this.subscriptionRepository.findById(id);
-        if (!subscription.isPresent()) {
-            throw new SubscriptionNotFoundException();
+        if (subscription.isEmpty()) {
+            throw new SubscriptionNotFoundException(id);
         }
-        SubscriptionDTO sub = this.subscriptionMapper.toDto(subscription.get());
-        return sub;
+        return this.subscriptionMapper.toDto(subscription.get());
     }
 
     public List<SubscriptionDTO> findAll(String customerId) {
         Optional<Customer> customer = this.customerRepository.findById(customerId);
         if (customer.isEmpty()) {
-            throw new CustomerNotFoundException();
+            throw new CustomerNotFoundException(customerId);
         }
         List<Subscription> subscriptions = this.subscriptionRepository.findAllByCustomer(customer.get());
         return this.subscriptionMapper.toDto(subscriptions);

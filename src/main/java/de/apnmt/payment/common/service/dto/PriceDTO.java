@@ -1,12 +1,12 @@
 package de.apnmt.payment.common.service.dto;
 
+import java.io.Serializable;
+import java.util.Objects;
+
+import javax.validation.constraints.NotNull;
 import de.apnmt.payment.common.domain.Price;
 import de.apnmt.payment.common.domain.enumeration.Currency;
 import de.apnmt.payment.common.domain.enumeration.Interval;
-
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * A DTO for the {@link Price} entity.
@@ -21,9 +21,6 @@ public class PriceDTO implements Serializable {
 
     @NotNull
     private Currency currency;
-
-    @NotNull
-    private String postalCode;
 
     @NotNull
     private Long amount;
@@ -55,14 +52,6 @@ public class PriceDTO implements Serializable {
 
     public void setCurrency(Currency currency) {
         this.currency = currency;
-    }
-
-    public String getPostalCode() {
-        return this.postalCode;
-    }
-
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
     }
 
     public Long getAmount() {
@@ -113,14 +102,6 @@ public class PriceDTO implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "PriceDTO{" +
-                "id=" + getId() +
-                ", nickname='" + getNickname() + "'" +
-                ", currency='" + getCurrency() + "'" +
-                ", postalCode='" + getPostalCode() + "'" +
-                ", amount=" + getAmount() +
-                ", interval='" + getInterval() + "'" +
-                ", product=" + getProduct() +
-                "}";
+        return "PriceDTO{" + "id=" + this.getId() + ", nickname='" + this.getNickname() + "'" + ", currency='" + this.getCurrency() + "'" + ", amount" + "=" + this.getAmount() + ", interval='" + this.getInterval() + "'" + ", product=" + this.getProduct() + "}";
     }
 }

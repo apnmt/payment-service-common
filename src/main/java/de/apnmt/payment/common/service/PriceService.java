@@ -1,6 +1,10 @@
 package de.apnmt.payment.common.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.stripe.exception.StripeException;
+import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.domain.Price;
 import de.apnmt.payment.common.domain.Product;
 import de.apnmt.payment.common.repository.PriceRepository;
@@ -10,19 +14,15 @@ import de.apnmt.payment.common.service.errors.PriceNotFoundException;
 import de.apnmt.payment.common.service.errors.ProductNotFoundException;
 import de.apnmt.payment.common.service.mapper.PriceMapper;
 import de.apnmt.payment.common.service.stripe.PriceStripeService;
-import de.apnmt.payment.common.web.rest.errors.BadRequestAlertException;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PriceService {
 
-    private PriceRepository priceRepository;
-    private PriceStripeService priceStripeService;
-    private PriceMapper priceMapper;
-    private ProductRepository productRepository;
+    private final PriceRepository priceRepository;
+    private final PriceStripeService priceStripeService;
+    private final PriceMapper priceMapper;
+    private final ProductRepository productRepository;
 
     public PriceService(PriceRepository priceRepository, PriceStripeService priceStripeService, PriceMapper priceMapper, ProductRepository productRepository) {
         this.priceStripeService = priceStripeService;
@@ -35,8 +35,8 @@ public class PriceService {
     public PriceDTO save(PriceDTO priceDTO) {
         try {
             Optional<Product> optional = this.productRepository.findById(priceDTO.getProduct().getId());
-            if (!optional.isPresent()) {
-                throw new ProductNotFoundException();
+            if (optional.isEmpty()) {
+                throw new ProductNotFoundException(priceDTO.getProduct().getId());
             }
             PriceDTO stripeResult = this.priceStripeService.save(priceDTO);
             Price price = this.priceMapper.toEntity(priceDTO);
@@ -45,8 +45,7 @@ public class PriceService {
             product.addPrice(price);
             price = this.priceRepository.save(price);
             this.productRepository.save(product);
-            PriceDTO result = this.priceMapper.toDto(price);
-            return result;
+            return this.priceMapper.toDto(price);
         } catch (StripeException ex) {
             throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
         }
@@ -57,8 +56,7 @@ public class PriceService {
             this.priceStripeService.update(priceDTO);
             Price price = this.priceMapper.toEntity(priceDTO);
             price = this.priceRepository.save(price);
-            PriceDTO result = this.priceMapper.toDto(price);
-            return result;
+            return this.priceMapper.toDto(price);
         } catch (StripeException ex) {
             throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
         }
@@ -67,18 +65,17 @@ public class PriceService {
     public PriceDTO findOne(String id) {
         Optional<Price> price = this.priceRepository.findById(id);
         if (price.isEmpty()) {
-            throw new PriceNotFoundException();
+            throw new PriceNotFoundException(id);
         }
-        PriceDTO priceDTO = this.priceMapper.toDto(price.get());
-        return priceDTO;
+        return this.priceMapper.toDto(price.get());
     }
 
     public Price validatePrice(Price price) {
         Optional<Price> maybe = this.priceRepository.findById(price.getId());
         if (maybe.isEmpty()) {
-            throw new PriceNotFoundException();
+            throw new PriceNotFoundException(price.getId());
         } else if (maybe.get().getProduct() == null) {
-            throw new ProductNotFoundException();
+            throw new ProductNotFoundException(null);
         }
         return maybe.get();
     }
@@ -86,7 +83,7 @@ public class PriceService {
     public List<PriceDTO> findAllByProduct(String productId) {
         Optional<Product> product = this.productRepository.findById(productId);
         if (!product.isPresent()) {
-            throw new ProductNotFoundException();
+            throw new ProductNotFoundException(productId);
         }
         List<Price> prices = this.priceRepository.findAllByProduct(product.get());
         List<PriceDTO> priceDTOS = this.priceMapper.toDto(prices);

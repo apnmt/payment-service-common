@@ -1,14 +1,21 @@
 package de.apnmt.payment.common.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import de.apnmt.payment.common.domain.enumeration.Currency;
-import de.apnmt.payment.common.domain.enumeration.Interval;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import de.apnmt.payment.common.domain.enumeration.Currency;
+import de.apnmt.payment.common.domain.enumeration.Interval;
 
 /**
  * A Price.
@@ -32,16 +39,12 @@ public class Price implements Serializable {
     private Currency currency;
 
     @NotNull
-    @Column(name = "postal_code", nullable = false)
-    private String postalCode;
-
-    @NotNull
     @Column(name = "amount", nullable = false)
     private Long amount;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "interval", nullable = false)
+    @Column(name = "interval_type", nullable = false)
     private Interval interval;
 
     @OneToMany(mappedBy = "price")
@@ -90,19 +93,6 @@ public class Price implements Serializable {
 
     public void setCurrency(Currency currency) {
         this.currency = currency;
-    }
-
-    public String getPostalCode() {
-        return this.postalCode;
-    }
-
-    public Price postalCode(String postalCode) {
-        this.postalCode = postalCode;
-        return this;
-    }
-
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
     }
 
     public Long getAmount() {
@@ -191,19 +181,13 @@ public class Price implements Serializable {
     @Override
     public int hashCode() {
         // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return getClass().hashCode();
+        return this.getClass().hashCode();
     }
 
     // prettier-ignore
     @Override
     public String toString() {
-        return "Price{" +
-                "id=" + getId() +
-                ", nickname='" + getNickname() + "'" +
-                ", currency='" + getCurrency() + "'" +
-                ", postalCode='" + getPostalCode() + "'" +
-                ", amount=" + getAmount() +
-                ", interval='" + getInterval() + "'" +
-                "}";
+        return "Price{" + "id=" + this.getId() + ", nickname='" + this.getNickname() + "'" + ", currency='" + this.getCurrency() + "'" + ", amount=" + this.getAmount() + ", " +
+                "interval='" + this.getInterval() + "'" + "}";
     }
 }

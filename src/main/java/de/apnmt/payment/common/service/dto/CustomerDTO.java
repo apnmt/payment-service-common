@@ -1,10 +1,10 @@
 package de.apnmt.payment.common.service.dto;
 
-import de.apnmt.payment.common.domain.Customer;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
+
+import javax.validation.constraints.NotNull;
+import de.apnmt.payment.common.domain.Customer;
 
 /**
  * A DTO for the {@link Customer} entity.
@@ -46,24 +46,23 @@ public class CustomerDTO implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || this.getClass() != o.getClass()) return false;
         CustomerDTO that = (CustomerDTO) o;
-        return Objects.equals(getId(), that.getId()) && getEmail().equals(that.getEmail()) && getOrganizationId().equals(that.getOrganizationId());
+        if (this.id == null) {
+            return false;
+        }
+        return Objects.equals(this.getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getEmail(), getOrganizationId());
+        return Objects.hash(this.getId(), this.getEmail(), this.getOrganizationId());
     }
 
     // prettier-ignore
 
     @Override
     public String toString() {
-        return "CustomerDTO{" +
-                "id=" + this.id +
-                ", email='" + this.email + '\'' +
-                ", organizationId=" + this.organizationId +
-                '}';
+        return "CustomerDTO{" + "id=" + this.id + ", email='" + this.email + '\'' + ", organizationId=" + this.organizationId + '}';
     }
 }

@@ -1,12 +1,16 @@
 package de.apnmt.payment.common.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * A Customer.
@@ -102,15 +106,12 @@ public class Customer implements Serializable {
     @Override
     public int hashCode() {
         // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return getClass().hashCode();
+        return this.getClass().hashCode();
     }
 
     // prettier-ignore
     @Override
     public String toString() {
-        return "Customer{" +
-                "id=" + getId() +
-                ", organizationId=" + getOrganizationId() +
-                "}";
+        return "Customer{" + "id=" + this.getId() + ", organizationId=" + this.getOrganizationId() + "}";
     }
 }

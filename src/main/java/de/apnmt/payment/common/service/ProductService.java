@@ -1,24 +1,24 @@
 package de.apnmt.payment.common.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.stripe.exception.StripeException;
+import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.domain.Product;
 import de.apnmt.payment.common.repository.ProductRepository;
 import de.apnmt.payment.common.service.dto.ProductDTO;
 import de.apnmt.payment.common.service.errors.ProductNotFoundException;
 import de.apnmt.payment.common.service.mapper.ProductMapper;
 import de.apnmt.payment.common.service.stripe.ProductStripeService;
-import de.apnmt.payment.common.web.rest.errors.BadRequestAlertException;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
 
-    private ProductRepository productRepository;
-    private ProductStripeService productStripeService;
-    private ProductMapper productMapper;
+    private final ProductRepository productRepository;
+    private final ProductStripeService productStripeService;
+    private final ProductMapper productMapper;
 
     public ProductService(ProductRepository productRepository, ProductStripeService productStripeService, ProductMapper productMapper) {
         this.productRepository = productRepository;
@@ -33,8 +33,7 @@ public class ProductService {
             Product product = this.productMapper.toEntity(productDTO);
             product.setId(stripeResult.getId());
             product = this.productRepository.save(product);
-            ProductDTO result = this.productMapper.toDto(product);
-            return result;
+            return this.productMapper.toDto(product);
         } catch (StripeException ex) {
             throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
         }
@@ -45,8 +44,7 @@ public class ProductService {
             this.productStripeService.update(productDTO);
             Product product = this.productMapper.toEntity(productDTO);
             product = this.productRepository.save(product);
-            ProductDTO result = this.productMapper.toDto(product);
-            return result;
+            return this.productMapper.toDto(product);
         } catch (StripeException ex) {
             throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
         }
@@ -55,7 +53,7 @@ public class ProductService {
     public ProductDTO findOne(String id) {
         Optional<Product> maybe = this.productRepository.findById(id);
         if (maybe.isEmpty()) {
-            throw new ProductNotFoundException();
+            throw new ProductNotFoundException(id);
         }
         Product product = maybe.get();
         return this.productMapper.toDto(product);
@@ -63,8 +61,7 @@ public class ProductService {
 
     public List<ProductDTO> findAll() {
         List<Product> products = this.productRepository.findAll();
-        List<ProductDTO> productDTOS = this.productMapper.toDto(products);
-        return productDTOS;
+        return this.productMapper.toDto(products);
     }
 
 }

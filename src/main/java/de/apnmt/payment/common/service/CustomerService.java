@@ -1,31 +1,31 @@
 package de.apnmt.payment.common.service;
 
+import java.util.Optional;
+
 import com.stripe.exception.StripeException;
+import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.domain.Customer;
 import de.apnmt.payment.common.repository.CustomerRepository;
 import de.apnmt.payment.common.service.dto.CustomerDTO;
+import de.apnmt.payment.common.service.mapper.CustomerMapper;
 import de.apnmt.payment.common.service.stripe.CustomerStripeService;
-import de.apnmt.payment.common.service.stripe.mapper.PaymentMethodMapper;
-import de.apnmt.payment.common.web.rest.errors.BadRequestAlertException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class CustomerService {
 
-    private CustomerRepository customerRepository;
-    private CustomerStripeService customerStripeService;
-    private PaymentMethodMapper paymentMethodMapper;
+    private final CustomerRepository customerRepository;
+    private final CustomerStripeService customerStripeService;
+    private final CustomerMapper customerMapper;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerStripeService customerStripeService, PaymentMethodMapper paymentMethodMapper) {
+    public CustomerService(CustomerRepository customerRepository, CustomerStripeService customerStripeService, CustomerMapper customerMapper) {
         this.customerRepository = customerRepository;
         this.customerStripeService = customerStripeService;
-        this.paymentMethodMapper = paymentMethodMapper;
+        this.customerMapper = customerMapper;
     }
 
-    public Customer createCustomer(CustomerDTO customerDTO) {
-        Optional<Customer> maybe = this.customerRepository.findById(customerDTO.getId());
+    public CustomerDTO createCustomer(CustomerDTO customerDTO) {
+        Optional<Customer> maybe = customerDTO.getId() == null ? Optional.empty() : this.customerRepository.findById(customerDTO.getId());
         try {
             if (maybe.isEmpty()) {
                 com.stripe.model.Customer stripeResult = this.customerStripeService.createCustomer(customerDTO.getEmail());
@@ -33,12 +33,12 @@ public class CustomerService {
                 customer.setId(stripeResult.getId());
                 customer.setOrganizationId(customerDTO.getOrganizationId());
                 this.customerRepository.save(customer);
-                return customer;
+                return this.customerMapper.toDto(customer);
             }
         } catch (StripeException ex) {
             throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
         }
-        return maybe.get();
+        return this.customerMapper.toDto(maybe.get());
     }
 
     public void createPaymentMethod(String paymentMethod, String customerId) {

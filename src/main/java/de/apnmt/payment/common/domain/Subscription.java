@@ -1,13 +1,19 @@
 package de.apnmt.payment.common.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * A Subscription.
@@ -25,7 +31,7 @@ public class Subscription implements Serializable {
     @Column(name = "expiration_date", nullable = false)
     private LocalDateTime expirationDate;
 
-    @OneToMany(mappedBy = "subscription")
+    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL)
     @JsonIgnoreProperties(value = {"price", "subscription"}, allowSetters = true)
     private Set<SubscriptionItem> subscriptionItems = new HashSet<>();
 
@@ -120,15 +126,12 @@ public class Subscription implements Serializable {
     @Override
     public int hashCode() {
         // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return getClass().hashCode();
+        return this.getClass().hashCode();
     }
 
     // prettier-ignore
     @Override
     public String toString() {
-        return "Subscription{" +
-                "id=" + getId() +
-                ", expirationDate='" + getExpirationDate() + "'" +
-                "}";
+        return "Subscription{" + "id=" + this.getId() + ", expirationDate='" + this.getExpirationDate() + "'" + "}";
     }
 }

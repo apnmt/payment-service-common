@@ -8,9 +8,9 @@ import org.mapstruct.Mapping;
 /**
  * Mapper for the entity {@link SubscriptionItem} and its DTO {@link SubscriptionItemDTO}.
  */
-@Mapper(componentModel = "spring", uses = { PriceMapper.class, SubscriptionMapper.class })
+@Mapper(componentModel = "spring", uses = {PriceMapper.class, SubscriptionMapper.class})
 public interface SubscriptionItemMapper extends EntityMapper<SubscriptionItemDTO, SubscriptionItem> {
+    @Override
     @Mapping(target = "price", source = "price", qualifiedByName = "id")
-    @Mapping(target = "subscription", source = "subscription", qualifiedByName = "id")
     SubscriptionItemDTO toDto(SubscriptionItem s);
 }
