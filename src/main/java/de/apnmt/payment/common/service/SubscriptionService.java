@@ -7,7 +7,12 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 import com.stripe.exception.StripeException;
+import de.apnmt.common.TopicConstants;
 import de.apnmt.common.errors.BadRequestAlertException;
+import de.apnmt.common.event.ApnmtEvent;
+import de.apnmt.common.event.ApnmtEventType;
+import de.apnmt.common.event.value.OrganizationActivationEventDTO;
+import de.apnmt.common.sender.ApnmtEventSender;
 import de.apnmt.payment.common.domain.Customer;
 import de.apnmt.payment.common.domain.Price;
 import de.apnmt.payment.common.domain.Subscription;
@@ -35,10 +40,11 @@ public class SubscriptionService {
     private final SubscriptionStripeService subscriptionStripeService;
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final ApnmtEventSender<OrganizationActivationEventDTO> sender;
 
     public SubscriptionService(SubscriptionRepository subscriptionRepository, PriceRepository priceRepository, SubscriptionMapper subscriptionMapper,
                                CustomerService customerService, PriceService priceService, SubscriptionStripeService subscriptionStripeService,
-                               CustomerRepository customerRepository, CustomerMapper customerMapper) {
+                               CustomerRepository customerRepository, CustomerMapper customerMapper, ApnmtEventSender<OrganizationActivationEventDTO> sender) {
         this.subscriptionRepository = subscriptionRepository;
         this.priceRepository = priceRepository;
         this.subscriptionMapper = subscriptionMapper;
@@ -47,6 +53,7 @@ public class SubscriptionService {
         this.subscriptionStripeService = subscriptionStripeService;
         this.customerRepository = customerRepository;
         this.customerMapper = customerMapper;
+        this.sender = sender;
     }
 
     public SubscriptionDTO checkout(SubscriptionDTO subscriptionDTO, String paymentMethod) {
@@ -76,7 +83,6 @@ public class SubscriptionService {
         SubscriptionDTO subscriptionDTO = new SubscriptionDTO();
         if (subscription.getStatus().equals("trialing") || subscription.getStatus().equals("active")) {
             subscriptionDTO = this.saveSubscription(subscription, customer);
-            // TODO send organization activation event
         }
         return subscriptionDTO;
     }
@@ -108,7 +114,18 @@ public class SubscriptionService {
             s.setExpirationDate(expirationDate);
         }
         s = this.subscriptionRepository.save(s);
+        this.sendActivationEvent(s);
         return this.subscriptionMapper.toDto(s);
+    }
+
+    private void sendActivationEvent(Subscription subscription) {
+        OrganizationActivationEventDTO organizationActivationEventDTO = new OrganizationActivationEventDTO();
+        organizationActivationEventDTO.setOrganizationId(subscription.getCustomer().getOrganizationId());
+        organizationActivationEventDTO.setActive(true);
+        ApnmtEvent<OrganizationActivationEventDTO> event = new ApnmtEvent<OrganizationActivationEventDTO>().timestamp(LocalDateTime.now())
+                .type(ApnmtEventType.organizationActivationChanged)
+                .value(organizationActivationEventDTO);
+        this.sender.send(TopicConstants.ORGANIZATION_ACTIVATION_CHANGED_TOPIC, event);
     }
 
     public SubscriptionDTO findOne(String id) {

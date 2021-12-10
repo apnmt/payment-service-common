@@ -1,5 +1,8 @@
 package de.apnmt.payment.common.web.rest;
 
+import java.util.Optional;
+
+import com.stripe.exception.EventDataObjectDeserializationException;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.Invoice;
@@ -23,25 +26,22 @@ public class StripeWebhookResource {
 
     private final Logger log = LoggerFactory.getLogger(StripeWebhookResource.class);
 
-    private StripeWebhookService stripeWebhookService;
+    private final StripeWebhookService stripeWebhookService;
 
     public StripeWebhookResource(StripeWebhookService stripeWebhookService) {
         this.stripeWebhookService = stripeWebhookService;
     }
 
     @PostMapping("/stripe/events")
-    public ResponseEntity<Void> handleStripeEvent(HttpEntity<String> httpEntity) {
+    public ResponseEntity<Void> handleStripeEvent(HttpEntity<String> httpEntity) throws EventDataObjectDeserializationException {
         this.log.debug("REST request to handle Stripe Webhook");
         String json = httpEntity.getBody();
         Event event = ApiResource.GSON.fromJson(json, Event.class);
         EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
-        StripeObject stripeObject = null;
-        if (dataObjectDeserializer.getObject().isPresent()) {
-            stripeObject = dataObjectDeserializer.getObject().get();
-        }
-        if (stripeObject != null) {
+        Optional<StripeObject> maybe = dataObjectDeserializer.getObject();
+        if (maybe.isPresent()) {
             if (event.getType().equals("invoice.payment_succeeded")) {
-                Invoice invoice = (Invoice) stripeObject;
+                Invoice invoice = (Invoice) maybe.get();
                 this.stripeWebhookService.handleInvoiceSucceeded(invoice);
             } else {
                 this.log.info("Unknown Event Type={}. Event will be ignored.", event.getType());
