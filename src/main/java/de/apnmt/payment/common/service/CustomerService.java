@@ -1,5 +1,6 @@
 package de.apnmt.payment.common.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.stripe.exception.StripeException;
@@ -39,6 +40,11 @@ public class CustomerService {
             throw new BadRequestAlertException(ex.getMessage(), "Stripe", ex.getCode());
         }
         return this.customerMapper.toDto(maybe.get());
+    }
+
+    public List<CustomerDTO> findAll() {
+        List<Customer> customers = customerRepository.findAll();
+        return customerMapper.toDto(customers);
     }
 
     public void createPaymentMethod(String paymentMethod, String customerId) {

@@ -2,6 +2,7 @@ package de.apnmt.payment.common.web.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.domain.Customer;
@@ -11,12 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 
 /**
@@ -54,5 +50,11 @@ public class CustomerResource {
     public ResponseEntity<Void> createPaymentMethods(@PathVariable("customerId") String customerId, @RequestHeader("X-paymentMethod") String paymentMethod) {
         this.customerService.createPaymentMethod(paymentMethod, customerId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("")
+    public List<CustomerDTO> getAll() {
+        this.log.debug("REST request to get all Customers");
+        return customerService.findAll();
     }
 }
