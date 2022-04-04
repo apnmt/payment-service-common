@@ -1,10 +1,5 @@
 package de.apnmt.payment.common.service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Optional;
-
 import com.stripe.exception.StripeException;
 import com.stripe.model.Invoice;
 import de.apnmt.common.TopicConstants;
@@ -17,8 +12,12 @@ import de.apnmt.payment.common.repository.SubscriptionRepository;
 import de.apnmt.payment.common.service.stripe.SubscriptionStripeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Optional;
 
 @Service
 public class StripeWebhookService {
@@ -36,7 +35,6 @@ public class StripeWebhookService {
         this.sender = sender;
     }
 
-    @Async
     public void handleInvoiceSucceeded(Invoice invoice) {
         Optional<Subscription> optSubscription = this.subscriptionRepository.findById(invoice.getSubscription());
         if (optSubscription.isPresent()) {
