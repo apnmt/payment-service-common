@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.apnmt.payment</groupId>
     <artifactId>payment-service-common</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.5-SNAPSHOT</version>
     <name>Payment Service Common</name>
     <properties>
         <java.version>11</java.version>
