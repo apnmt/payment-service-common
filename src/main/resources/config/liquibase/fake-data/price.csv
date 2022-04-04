@@ -1,0 +1,3 @@
+id;nickname;currency;amount;interval_type;product_id
+price_1KjJ3jHXw9z9dE0C1nJFJ1mq;Test Preis 1 Monthly;eur;1000;month;prod_LQ9MM3UEDGiaJg
+price_1KjJ3jHXw9z9dE0CFdvYp5gY;Test Preis 2 Yearly;eur;10000;year;prod_LQ9MM3UEDGiaJg
