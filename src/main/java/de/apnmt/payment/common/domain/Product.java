@@ -28,7 +28,7 @@ public class Product implements Serializable {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = {"subscriptionItems", "product"}, allowSetters = true)
     private Set<Price> prices = new HashSet<>();
 
