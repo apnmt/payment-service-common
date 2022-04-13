@@ -1,10 +1,5 @@
 package de.apnmt.payment.common.web.rest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-
 import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.repository.ProductRepository;
 import de.apnmt.payment.common.service.ProductService;
@@ -13,14 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * REST controller for managing {@link ProductDTO}.
@@ -83,6 +77,20 @@ public class ProductResource {
     public ProductDTO getProduct(@PathVariable("id") String id) {
         this.log.debug("REST request to get Product : {}", id);
         return this.productService.findOne(id);
+    }
+
+    /**
+     * {@code DELETE  /products} : delete all products.
+     *
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("")
+    public ResponseEntity<Void> deleteAll() {
+        this.log.debug("REST request to delete all Products");
+        this.productService.deleteAll();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 
 }

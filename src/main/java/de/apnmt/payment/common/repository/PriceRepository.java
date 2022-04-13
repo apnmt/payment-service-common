@@ -16,4 +16,6 @@ public interface PriceRepository extends JpaRepository<Price, String> {
 
     List<Price> findAllByProduct(Product product);
 
+    void deleteAllByProductIsNot(Product product);
+
 }

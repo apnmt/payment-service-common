@@ -1,8 +1,5 @@
 package de.apnmt.payment.common.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.stripe.exception.StripeException;
 import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.domain.Price;
@@ -15,6 +12,9 @@ import de.apnmt.payment.common.service.errors.ProductNotFoundException;
 import de.apnmt.payment.common.service.mapper.PriceMapper;
 import de.apnmt.payment.common.service.stripe.PriceStripeService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PriceService {
@@ -82,12 +82,20 @@ public class PriceService {
 
     public List<PriceDTO> findAllByProduct(String productId) {
         Optional<Product> product = this.productRepository.findById(productId);
-        if (!product.isPresent()) {
+        if (product.isEmpty()) {
             throw new ProductNotFoundException(productId);
         }
         List<Price> prices = this.priceRepository.findAllByProduct(product.get());
         List<PriceDTO> priceDTOS = this.priceMapper.toDto(prices);
         return priceDTOS;
+    }
+
+    /**
+     * Delete all prices.
+     */
+    public void deleteAll() {
+        Optional<Product> product = this.productRepository.findById("prod_LQ9MM3UEDGiaJg");
+        product.ifPresent(priceRepository::deleteAllByProductIsNot);
     }
 
 }

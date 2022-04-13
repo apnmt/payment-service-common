@@ -1,8 +1,5 @@
 package de.apnmt.payment.common.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.stripe.exception.StripeException;
 import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.domain.Customer;
@@ -11,6 +8,9 @@ import de.apnmt.payment.common.service.dto.CustomerDTO;
 import de.apnmt.payment.common.service.mapper.CustomerMapper;
 import de.apnmt.payment.common.service.stripe.CustomerStripeService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerService {
@@ -53,6 +53,13 @@ public class CustomerService {
         } catch (StripeException e) {
             throw new BadRequestAlertException(e.getMessage(), "Stripe", e.getCode());
         }
+    }
+
+    /**
+     * Delete all customers.
+     */
+    public void deleteAll() {
+        customerRepository.deleteAll();
     }
 
 }

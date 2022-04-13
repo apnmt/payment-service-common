@@ -1,8 +1,5 @@
 package de.apnmt.payment.common.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.stripe.exception.StripeException;
 import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.domain.Product;
@@ -12,6 +9,9 @@ import de.apnmt.payment.common.service.errors.ProductNotFoundException;
 import de.apnmt.payment.common.service.mapper.ProductMapper;
 import de.apnmt.payment.common.service.stripe.ProductStripeService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -62,6 +62,13 @@ public class ProductService {
     public List<ProductDTO> findAll() {
         List<Product> products = this.productRepository.findAll();
         return this.productMapper.toDto(products);
+    }
+
+    /**
+     * Delete all products.
+     */
+    public void deleteAll() {
+        productRepository.deleteAllByIdIsNot("prod_LQ9MM3UEDGiaJg");
     }
 
 }

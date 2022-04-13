@@ -1,9 +1,5 @@
 package de.apnmt.payment.common.web.rest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-
 import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.domain.Customer;
 import de.apnmt.payment.common.service.CustomerService;
@@ -14,6 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 
 /**
  * REST controller for managing {@link Customer}.
@@ -56,5 +56,19 @@ public class CustomerResource {
     public List<CustomerDTO> getAll() {
         this.log.debug("REST request to get all Customers");
         return customerService.findAll();
+    }
+
+    /**
+     * {@code DELETE  /customers} : delete all customers.
+     *
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("")
+    public ResponseEntity<Void> deleteAll() {
+        this.log.debug("REST request to delete all Customers");
+        this.customerService.deleteAll();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

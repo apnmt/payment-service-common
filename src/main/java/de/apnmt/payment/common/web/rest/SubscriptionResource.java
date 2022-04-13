@@ -1,9 +1,5 @@
 package de.apnmt.payment.common.web.rest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-
 import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.service.SubscriptionService;
 import de.apnmt.payment.common.service.dto.SubscriptionDTO;
@@ -11,14 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 
 /**
  * REST controller for managing {@link SubscriptionDTO}.
@@ -61,6 +55,20 @@ public class SubscriptionResource {
     public List<SubscriptionDTO> getAllSubscriptions(@PathVariable("customerId") String customerId) {
         this.log.debug("REST request to get all subscriptions for customer {}", customerId);
         return this.subscriptionService.findAll(customerId);
+    }
+
+    /**
+     * {@code DELETE  /subscriptions} : delete all subscriptions.
+     *
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("")
+    public ResponseEntity<Void> deleteAppointments() {
+        this.log.debug("REST request to delete all subscriptions");
+        this.subscriptionService.deleteAll();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 
 }

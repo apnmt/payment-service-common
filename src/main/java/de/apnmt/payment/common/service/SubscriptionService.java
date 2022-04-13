@@ -1,11 +1,5 @@
 package de.apnmt.payment.common.service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
-
 import com.stripe.exception.StripeException;
 import de.apnmt.common.TopicConstants;
 import de.apnmt.common.errors.BadRequestAlertException;
@@ -28,6 +22,12 @@ import de.apnmt.payment.common.service.mapper.CustomerMapper;
 import de.apnmt.payment.common.service.mapper.SubscriptionMapper;
 import de.apnmt.payment.common.service.stripe.SubscriptionStripeService;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
 
 @Service
 public class SubscriptionService {
@@ -143,6 +143,13 @@ public class SubscriptionService {
         }
         List<Subscription> subscriptions = this.subscriptionRepository.findAllByCustomer(customer.get());
         return this.subscriptionMapper.toDto(subscriptions);
+    }
+
+    /**
+     * Delete all subscriptions.
+     */
+    public void deleteAll() {
+        subscriptionRepository.deleteAll();
     }
 
 }

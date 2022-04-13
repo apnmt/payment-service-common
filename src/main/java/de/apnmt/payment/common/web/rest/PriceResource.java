@@ -1,10 +1,5 @@
 package de.apnmt.payment.common.web.rest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-
 import de.apnmt.common.errors.BadRequestAlertException;
 import de.apnmt.payment.common.repository.PriceRepository;
 import de.apnmt.payment.common.service.PriceService;
@@ -13,14 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * REST controller for managing {@link PriceDTO}.
@@ -83,6 +77,20 @@ public class PriceResource {
     public List<PriceDTO> getAllPrices(@PathVariable("id") String id) {
         this.log.debug("REST request to get all Prices for product {}", id);
         return this.priceService.findAllByProduct(id);
+    }
+
+    /**
+     * {@code DELETE  /prices} : delete all prices.
+     *
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("")
+    public ResponseEntity<Void> deleteAll() {
+        this.log.debug("REST request to delete all Prices");
+        this.priceService.deleteAll();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 
 }
