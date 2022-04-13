@@ -9,11 +9,13 @@ import de.apnmt.payment.common.service.errors.ProductNotFoundException;
 import de.apnmt.payment.common.service.mapper.ProductMapper;
 import de.apnmt.payment.common.service.stripe.ProductStripeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;

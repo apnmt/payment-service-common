@@ -22,6 +22,7 @@ import de.apnmt.payment.common.service.mapper.CustomerMapper;
 import de.apnmt.payment.common.service.mapper.SubscriptionMapper;
 import de.apnmt.payment.common.service.stripe.SubscriptionStripeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 @Service
+@Transactional
 public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;

@@ -8,11 +8,13 @@ import de.apnmt.payment.common.service.dto.CustomerDTO;
 import de.apnmt.payment.common.service.mapper.CustomerMapper;
 import de.apnmt.payment.common.service.stripe.CustomerStripeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
